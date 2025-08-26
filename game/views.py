@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
-from django.views.generic import View
+from django.views.generic import View, TemplateView
 from .models import Game
+from django.contrib.auth.mixins import LoginRequiredMixin
 import random
 
 
@@ -83,7 +84,7 @@ def check_status(board, game):
         draw_player2.save()
 
 
-class CreateGame(View):
+class CreateGame(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         p1_symbol = random.choice(["X", "O"])
         p2_symbol = "O" if p1_symbol == "X" else "X"
@@ -96,30 +97,33 @@ class CreateGame(View):
         return redirect(new_game.get_absolute_url())
 
 
-class Game(View):
+class GameView(LoginRequiredMixin, View):
     def post(self, request, pk, *args, **kwargs):
         current_game = Game.objects.get(pk=pk)
-        pos = request.POST.get["posistion"]
-        if pos:
-            position = int(pos)
+        if current_game.status == "p":
+            pos = request.POST.get["posistion"]
+            if pos:
+                position = int(pos)
 
-        if (
-            (request.user == current_game.player1)
-            and (current_game.turn == current_game.player1_symbol)
-            and (current_game.board[position] == " ")
-        ):
-            current_game.board[position] = current_game.player1_symbol
-            current_game.turn = current_game.player2_symbol
-            current_game.save()
+            if (
+                (request.user == current_game.player1)
+                and (current_game.turn == current_game.player1_symbol)
+                and (current_game.board[position] == " ")
+            ):
+                current_game.board[position] = current_game.player1_symbol
+                current_game.turn = current_game.player2_symbol
+                current_game.save()
 
-        elif (
-            (request.user == current_game.player2)
-            and (current_game.turn == current_game.player2_symbol)
-            and (current_game.board[position] == " ")
-        ):
-            current_game.board[position] = current_game.player2_symbol
-            current_game.turn = current_game.player1_symbol
-            current_game.save()
+            elif (
+                (request.user == current_game.player2)
+                and (current_game.turn == current_game.player2_symbol)
+                and (current_game.board[position] == " ")
+            ):
+                current_game.board[position] = current_game.player2_symbol
+                current_game.turn = current_game.player1_symbol
+                current_game.save()
+        else:
+            return redirect("home")
 
     def get(self, request, pk, *args, **kwargs):
         current_game = Game.objects.get(pk=pk)
@@ -127,3 +131,7 @@ class Game(View):
         if not current_game.player2 and request.user != current_game.player1:
             current_game.player2 = request.user
             current_game.save()
+
+
+class HomeView(TemplateView):
+    template_name = "game/home.html"

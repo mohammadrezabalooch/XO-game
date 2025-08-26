@@ -8,7 +8,7 @@ from .forms import CustomUserCreationForm, CustomUserChangeForm
 
 class CustomUserAdmin(UserAdmin):
     model = get_user_model()
-    fieldsets = UserAdmin.fieldsets + (None, {"fields": ("wins", "draws", "loses")})
+    fieldsets = UserAdmin.fieldsets + ((None, {"fields": ("wins", "draws", "loses")}),)
     add_fieldsets = UserAdmin.add_fieldsets
     form = CustomUserChangeForm
     add_form = CustomUserCreationForm
