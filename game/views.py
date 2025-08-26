@@ -101,27 +101,31 @@ class GameView(LoginRequiredMixin, View):
     def post(self, request, pk, *args, **kwargs):
         current_game = Game.objects.get(pk=pk)
         if current_game.status == "p":
-            pos = request.POST.get["posistion"]
+            pos = request.POST.get("position")
             if pos:
                 position = int(pos)
+                current_board = list(current_game.board)
 
-            if (
-                (request.user == current_game.player1)
-                and (current_game.turn == current_game.player1_symbol)
-                and (current_game.board[position] == " ")
-            ):
-                current_game.board[position] = current_game.player1_symbol
-                current_game.turn = current_game.player2_symbol
-                current_game.save()
+                if (
+                    (request.user == current_game.player1)
+                    and (current_game.turn == current_game.player1_symbol)
+                    and (current_board[position] == " ")
+                ):
+                    current_board[position] = current_game.player1_symbol
+                    current_game.turn = current_game.player2_symbol
+                    current_game.board = "".join(current_board)
+                    current_game.save()
 
-            elif (
-                (request.user == current_game.player2)
-                and (current_game.turn == current_game.player2_symbol)
-                and (current_game.board[position] == " ")
-            ):
-                current_game.board[position] = current_game.player2_symbol
-                current_game.turn = current_game.player1_symbol
-                current_game.save()
+                elif (
+                    (request.user == current_game.player2)
+                    and (current_game.turn == current_game.player2_symbol)
+                    and (current_board[position] == " ")
+                ):
+                    current_board[position] = current_game.player2_symbol
+                    current_game.turn = current_game.player1_symbol
+                    current_game.board = "".join(current_board)
+                    current_game.save()
+            return redirect("game", pk=pk)
         else:
             return redirect("home")
 
@@ -131,6 +135,12 @@ class GameView(LoginRequiredMixin, View):
         if not current_game.player2 and request.user != current_game.player1:
             current_game.player2 = request.user
             current_game.save()
+
+        context = {
+            "game": current_game,
+        }
+
+        return render(request, "game/game.html", context)
 
 
 class HomeView(TemplateView):

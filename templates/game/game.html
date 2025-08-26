@@ -1,0 +1,10 @@
+{% extends "base.html" %} {% block main %}
+
+<h2>{{game.player1.username}}:{{game.player1_symbol}}</h2>
+<form action="{% url 'game' game.pk %}" method="post">
+  {% csrf_token %} {% for cell in game.board %}
+  <input type="hidden" name="position" value="{{forloop.counter0}}" />
+  <button type="submit">{{cell}}</button>
+  {% endfor %}
+</form>
+{% endblock main %}
