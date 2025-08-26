@@ -5,6 +5,6 @@ from django.contrib.auth.models import AbstractUser
 
 
 class CustomUser(AbstractUser):
-    wins = models.PositiveSmallIntegerField()
-    loses = models.PositiveSmallIntegerField()
-    draws = models.PositiveSmallIntegerField()
+    wins = models.PositiveSmallIntegerField(default=0)
+    loses = models.PositiveSmallIntegerField(default=0)
+    draws = models.PositiveSmallIntegerField(default=0)
