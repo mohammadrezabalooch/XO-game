@@ -63,9 +63,9 @@
       <div class="card-body">
         {% if user.is_authenticated %}
           <div class="text-center">
-            <h6>🏆 پیروزی‌ها: {{ user.wins|default:0|add:user.wins|default:0 }}</h6>
-            <h6>💔 شکست‌ها: {{ user.loses|default:0|add:user.loses|default:0 }}</h6>
-            <h6>🤝 مساوی‌ها: {{ user.draws|default:0|add:user.draws|default:0 }}</h6>
+            <h6>🏆 پیروزی‌ها: {{ user.wins }}</h6>
+            <h6>💔 شکست‌ها: {{ user.loses }}</h6>
+            <h6>🤝 مساوی‌ها: {{ user.draws }}</h6>
           </div>
         {% else %}
           <p class="text-center">برای دیدن آمار وارد شوید</p>
