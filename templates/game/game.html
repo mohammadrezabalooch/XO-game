@@ -1,6 +1,13 @@
 {% extends "base.html" %} 
 {% block title %}XO-Play{% endblock title %}
 {% block content %}
+{% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
 
 <h2>
   {{game.player1.username}}:{{game.player1_symbol}}
@@ -12,7 +19,13 @@
   <br>
   turn: {{game.turn}}
   <br>
-  Game Status: {{game.status}}
+  Game Status: {% if game.status == "w1"%}
+    {{game.player1_symbol}} Won!
+  {% elif  game.status == "w2" %}
+    {{game.player2_symbol}} Won!
+  {% else %}
+    {{game.status}}
+  {% endif %}
 </h2>
 
 <form action="{% url 'game' game.pk %}" method="post">
@@ -29,4 +42,39 @@
     {% if forloop.counter0 == 2 or forloop.counter0 == 5 %}<br>{% endif %}
   {% endfor %}
 </form>
+{% if game.status == "p" %}
+<script>
+  (function () {
+    const stateUrl = "{% url 'game_state' pk=game.pk %}";
+    let last = {
+      board: "{{ game.board|escapejs }}",
+      turn: "{{ game.turn|escapejs }}",
+      status: "{{ game.status|escapejs }}"
+    };
+
+    async function poll() {
+      try {
+        const res = await fetch(stateUrl, {
+          cache: "no-store",
+          headers: { "Accept": "application/json" }
+        });
+        if (!res.ok) {
+          console.warn("state fetch failed", res.status);
+          return;
+        }
+        const data = await res.json();
+
+        if (data.board !== last.board || data.turn !== last.turn || data.status !== last.status) {
+          window.location.reload();
+        }
+      } catch (e) {
+        console.error("poll error", e);
+      }
+    }
+
+    setTimeout(poll, 500);
+    setInterval(poll, 1500);
+  })();
+</script>
+{% endif %}
 {% endblock content %}

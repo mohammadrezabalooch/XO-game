@@ -3,7 +3,9 @@ from django.views.generic import View, TemplateView
 from django.views.generic.detail import SingleObjectMixin
 from .models import Game
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib import messages
 import random
+from django.http import JsonResponse
 
 
 # Create your views here.
@@ -120,8 +122,10 @@ class GameView(LoginRequiredMixin, UserPassesTestMixin, SingleObjectMixin, View)
                             current_game.save()
                             check_status(current_game.board, current_game)
                         else:
+                            messages.info(request, "این خونه قبلا انتخاب شده")
                             print("این خونه قبلا انتخاب شده")
                     else:
+                        messages.info(request, "نوبت شما نیست")
                         print("نوبت شما نیست")
 
                 elif is_player2:
@@ -133,8 +137,10 @@ class GameView(LoginRequiredMixin, UserPassesTestMixin, SingleObjectMixin, View)
                             current_game.save()
                             check_status(current_game.board, current_game)
                         else:
+                            messages.info(request, "این خونه قبلا انتخاب شده")
                             print("این خونه قبلا انتخاب شده")
                     else:
+                        messages.info(request, "نوبت شما نیست")
                         print("نوبت شما نیست")
 
                 else:
@@ -142,6 +148,7 @@ class GameView(LoginRequiredMixin, UserPassesTestMixin, SingleObjectMixin, View)
 
             return redirect("game", pk=current_game.pk)
         else:
+            messages.info(request, "بازی به اتمام رسیده")
             print("بازی به اتمام رسیده")
             return redirect("game", pk=current_game.pk)
 
@@ -163,6 +170,29 @@ class GameView(LoginRequiredMixin, UserPassesTestMixin, SingleObjectMixin, View)
         if current_game.player1 and current_game.player2:
             return self.request.user in [current_game.player1, current_game.player2]
         return True
+
+
+class GameStateView(LoginRequiredMixin, SingleObjectMixin, View):
+    model = Game
+
+    def get(self, request, *args, **kwargs):
+        game = self.get_object()
+        # اجازه فقط به بازیکنان بازی
+        if game.player1 and game.player2:
+            if request.user not in [game.player1, game.player2]:
+                return JsonResponse({"detail": "forbidden"}, status=403)
+
+        data = {
+            "id": game.pk,
+            "board": game.board,
+            "turn": game.turn,
+            "status": game.status,
+            "player1": game.player1_id,
+            "player2": game.player2_id,
+            "player1_symbol": game.player1_symbol,
+            "player2_symbol": game.player2_symbol,
+        }
+        return JsonResponse(data)
 
 
 class HomeView(TemplateView):
