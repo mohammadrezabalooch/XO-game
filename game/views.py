@@ -21,24 +21,19 @@ def check_status(board, game):
             game.save()
 
             winner_player = game.player1
-            winner_player.wins += 1
-            winner_player.save()
-
             loser_player = game.player2
-            loser_player.loses += 1
-            loser_player.save()
 
         else:
             game.status = "w2"
             game.save()
 
             winner_player = game.player2
-            winner_player.wins += 1
-            winner_player.save()
-
             loser_player = game.player1
-            loser_player.loses += 1
-            loser_player.save()
+
+        winner_player.wins += 1
+        winner_player.save()
+        loser_player.loses += 1
+        loser_player.save()
     elif (
         (board[0] == board[4] == board[8] == "O")
         or (board[2] == board[4] == board[6] == "O")
@@ -53,24 +48,19 @@ def check_status(board, game):
             game.save()
 
             winner_player = game.player1
-            winner_player.wins += 1
-            winner_player.save()
-
             loser_player = game.player2
-            loser_player.loses += 1
-            loser_player.save()
 
         else:
             game.status = "w2"
             game.save()
 
             winner_player = game.player2
-            winner_player.wins += 1
-            winner_player.save()
-
             loser_player = game.player1
-            loser_player.loses += 1
-            loser_player.save()
+
+        winner_player.wins += 1
+        winner_player.save()
+        loser_player.loses += 1
+        loser_player.save()
     elif " " not in board:
         game.status = "d"
         game.save()
@@ -106,30 +96,49 @@ class GameView(LoginRequiredMixin, View):
                 position = int(pos)
                 current_board = list(current_game.board)
 
-                if (
-                    (request.user == current_game.player1)
-                    and (current_game.turn == current_game.player1_symbol)
-                    and (current_board[position] == " ")
-                ):
-                    current_board[position] = current_game.player1_symbol
-                    current_game.turn = current_game.player2_symbol
-                    current_game.board = "".join(current_board)
-                    current_game.save()
-                    check_status(current_game.board, current_game)
+                # conditions
+                # for p1
+                is_player1 = request.user == current_game.player1
+                is_player1_turn = current_game.turn == current_game.player1_symbol
+                # for p2
+                is_player2 = request.user == current_game.player2
+                is_player2_turn = current_game.turn == current_game.player2_symbol
+                # both
+                is_choose_empty = current_board[position] == " "
 
-                elif (
-                    (request.user == current_game.player2)
-                    and (current_game.turn == current_game.player2_symbol)
-                    and (current_board[position] == " ")
-                ):
-                    current_board[position] = current_game.player2_symbol
-                    current_game.turn = current_game.player1_symbol
-                    current_game.board = "".join(current_board)
-                    current_game.save()
-                    check_status(current_game.board, current_game)
+                if is_player1:
+                    if is_player1_turn:
+                        if is_choose_empty:
+                            current_board[position] = current_game.player1_symbol
+                            current_game.turn = current_game.player2_symbol
+                            current_game.board = "".join(current_board)
+                            current_game.save()
+                            check_status(current_game.board, current_game)
+                        else:
+                            print("این خونه قبلا انتخاب شده")
+                    else:
+                        print("نوبت شما نیست")
+
+                elif is_player2:
+                    if is_player2_turn:
+                        if is_choose_empty:
+                            current_board[position] = current_game.player2_symbol
+                            current_game.turn = current_game.player1_symbol
+                            current_game.board = "".join(current_board)
+                            current_game.save()
+                            check_status(current_game.board, current_game)
+                        else:
+                            print("این خونه قبلا انتخاب شده")
+                    else:
+                        print("نوبت شما نیست")
+
+                else:
+                    return redirect("home")
+
             return redirect("game", pk=pk)
         else:
-            return redirect("home")
+            print("بازی به اتمام رسیده")
+            return redirect("game", pk=pk)
 
     def get(self, request, pk, *args, **kwargs):
         current_game = Game.objects.get(pk=pk)
