@@ -1,10 +1,77 @@
 {% extends "base.html" %}
+{% load crispy_forms_tags %}
 
-{% block title %}XO{% endblock title %}
+{% block title %}صفحه اصلی - XO Game{% endblock title %}
 
 {% block content %}
-<form action="{% url 'create_game' %}" method="post">
-  {% csrf_token %}
-  <button type="submit">بازی جدید</button>
-</form>
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">🎮 بازی جدید</h4>
+      </div>
+      <div class="card-body">
+        <form action="{% url 'create_game' %}" method="post">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-success btn-lg">
+            🆕 ایجاد بازی جدید
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- بازی‌های در انتظار -->
+    {% if waiting_games %}
+      <div class="card mt-4">
+        <div class="card-header bg-warning text-dark">
+          <h5 class="mb-0">⏳ بازی‌های در انتظار بازیکن دوم</h5>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            {% for game in waiting_games %}
+              <div class="col-md-6 mb-3">
+                <div class="card game-card border-warning">
+                  <div class="card-body text-center">
+                    <h6 class="card-title">بازی #{{ game.pk }}</h6>
+                    <p class="card-text">
+                      <strong>بازیکن اول:</strong> {{ game.player1.username }}<br>
+                      <strong>نماد:</strong> {{ game.player1_symbol }}
+                    </p>
+                    <a href="{% url 'game' game.pk %}" class="btn btn-warning">
+                      🎯 پیوستن به بازی
+                    </a>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="alert alert-info mt-4">
+        <h6>📝 هیچ بازی در انتظاری وجود ندارد</h6>
+        <p class="mb-0">اولین نفری باشید که بازی جدید ایجاد می‌کند!</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <div class="col-md-4">
+    <div class="card stats-card">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0">📊 آمار شما</h5>
+      </div>
+      <div class="card-body">
+        {% if user.is_authenticated %}
+          <div class="text-center">
+            <h6>🏆 پیروزی‌ها: {{ user.wins|default:0|add:user.wins|default:0 }}</h6>
+            <h6>💔 شکست‌ها: {{ user.loses|default:0|add:user.loses|default:0 }}</h6>
+            <h6>🤝 مساوی‌ها: {{ user.draws|default:0|add:user.draws|default:0 }}</h6>
+          </div>
+        {% else %}
+          <p class="text-center">برای دیدن آمار وارد شوید</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock content %}

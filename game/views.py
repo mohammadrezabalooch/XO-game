@@ -197,3 +197,15 @@ class GameStateView(LoginRequiredMixin, SingleObjectMixin, View):
 
 class HomeView(TemplateView):
     template_name = "game/home.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # بازیایی که فقط یک بازیکن دارند
+        context["waiting_games"] = (
+            Game.objects.filter(player2__isnull=True, status="p").exclude(
+                player1=self.request.user
+            )
+            if self.request.user.is_authenticated
+            else []
+        )
+        return context

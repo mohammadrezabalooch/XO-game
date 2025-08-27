@@ -35,6 +35,18 @@ class Game(models.Model):
     def get_absolute_url(self):
         return reverse("game", kwargs={"pk": self.pk})
 
+    @property
+    def is_waiting(self):
+        return self.player2 is None and self.status == "p"
+
+    @property
+    def current_player(self):
+        if self.turn == self.player1_symbol:
+            return self.player1
+        elif self.turn == self.player2_symbol:
+            return self.player2
+        return None
+
 
 # class Move(models.Model):
 #     Game = models.ForeignKey(Game, related_name="moves", on_delete=models.CASCADE)

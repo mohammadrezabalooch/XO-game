@@ -1,47 +1,110 @@
-{% extends "base.html" %} 
-{% block title %}XO-Play{% endblock title %}
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}بازی #{{ game.pk }} - XO Game{% endblock title %}
+
 {% block content %}
-{% if messages %}
-  <ul class="messages">
-    {% for message in messages %}
-      <li>{{ message }}</li>
-    {% endfor %}
-  </ul>
-{% endif %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <!-- باکس اصلی بازی -->
+    <div class="card shadow-lg">
+      <div class="card-header bg-primary text-white text-center">
+        <h3 class="mb-0">🎮 بازی XO</h3>
+      </div>
+      
+      <div class="card-body">
+        <!-- اطلاعات بازی -->
+        <div class="game-info text-center">
+          <div class="row">
+            <div class="col-md-6">
+              <div class="player-info">
+                <h5>👤 بازیکن اول</h5>
+                <p class="mb-1"><strong>{{ game.player1.username }}</strong></p>
+                <span class="badge bg-light text-dark fs-6">{{ game.player1_symbol }}</span>
+              </div>
+            </div>
+            <div class="col-md-6">
+              {% if game.player2 %}
+                <div class="player-info">
+                  <h5>👤 بازیکن دوم</h5>
+                  <p class="mb-1"><strong>{{ game.player2.username }}</strong></p>
+                  <span class="badge bg-light text-dark fs-6">{{ game.player2_symbol }}</span>
+                </div>
+              {% else %}
+                <div class="player-info">
+                  <h5>⏳ در انتظار</h5>
+                  <p class="mb-1">بازیکن دوم</p>
+                  <span class="badge bg-warning">انتظار...</span>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+          
+          <!-- وضعیت بازی -->
+          <div class="mt-3">
+            <div class="game-status">
+              {% if game.status == "p" %}
+                {% if game.player2 %}
+                  <span class="badge bg-info fs-6">
+                    نوبت: {{ game.turn }}
+                  </span>
+                {% else %}
+                  <span class="badge bg-warning fs-6">در انتظار بازیکن دوم</span>
+                {% endif %}
+              {% elif game.status == "w1" %}
+                <span class="badge bg-success fs-6">🏆 {{ game.player1.username }} برنده شد!</span>
+              {% elif game.status == "w2" %}
+                <span class="badge bg-success fs-6">🏆 {{ game.player2.username }} برنده شد!</span>
+              {% elif game.status == "d" %}
+                <span class="badge bg-secondary fs-6">🤝 مساوی!</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
 
-<h2>
-  {{game.player1.username}}:{{game.player1_symbol}}
-  {% if game.player2 %}
-    {{game.player2.username}}:{{game.player2_symbol}}
-  {% else %}
-    waiting for players...
-  {% endif %}
-  <br>
-  turn: {{game.turn}}
-  <br>
-  Game Status: {% if game.status == "w1"%}
-    {{game.player1_symbol}} Won!
-  {% elif  game.status == "w2" %}
-    {{game.player2_symbol}} Won!
-  {% else %}
-    {{game.status}}
-  {% endif %}
-</h2>
+        <!-- جدول بازی -->
+        {% if game.player2 and game.status == "p" %}
+          <div class="text-center">
+            <form action="{% url 'game' game.pk %}" method="post">
+              {% csrf_token %}
+              <div class="game-board d-inline-block">
+                {% for cell in game.board %}
+                  <button type="submit" name="position" value="{{ forloop.counter0 }}" 
+                          class="btn btn-outline-primary {% if cell != ' ' %}btn-primary{% endif %}">
+                    {% if cell == ' ' %}
+                      &nbsp;
+                    {% else %}
+                      <span class="symbol">{{ cell }}</span>
+                    {% endif %}
+                  </button>
+                  
+                  {% if forloop.counter0 == 2 or forloop.counter0 == 5 %}
+                    <br>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </form>
+          </div>
+        {% elif not game.player2 %}
+          <div class="text-center">
+            <div class="alert alert-info">
+              <h5>⏳ منتظر پیوستن بازیکن دوم هستیم...</h5>
+              <p>لینک این بازی را برای دوستتان ارسال کنید</p>
+            </div>
+          </div>
+        {% else %}
+          <div class="text-center">
+            <div class="alert alert-success">
+              <h5>🎯 بازی تمام شد!</h5>
+              <a href="{% url 'home' %}" class="btn btn-primary">بازگشت به صفحه اصلی</a>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
 
-<form action="{% url 'game' game.pk %}" method="post">
-  {% csrf_token %} 
-  
-  {% for cell in game.board %}
-    <button type="submit" name="position" value="{{ forloop.counter0 }}">
-      {% if cell == ' ' %}
-        &nbsp; {% else %}
-        {{ cell }}
-      {% endif %}
-    </button>
-    
-    {% if forloop.counter0 == 2 or forloop.counter0 == 5 %}<br>{% endif %}
-  {% endfor %}
-</form>
 {% if game.status == "p" %}
 <script>
   (function () {
@@ -72,6 +135,7 @@
       }
     }
 
+    // یک‌بار زودهنگام و بعد دوره‌ای
     setTimeout(poll, 500);
     setInterval(poll, 1500);
   })();

@@ -1,0 +1,159 @@
+/* فونت و استایل کلی */
+body {
+    font-family: 'Tahoma', sans-serif;
+}
+
+/* استایل دکمه‌های بازی */
+.game-board button {
+    width: 80px;
+    height: 80px;
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 2px;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    border: 2px solid #007bff;
+    background-color: #ffffff;
+    color: #007bff;
+    position: relative;
+}
+
+/* سلول‌های خالی */
+.game-board button:not(.btn-primary) {
+    background-color: #ffffff;
+    color: transparent;
+    border: 2px solid #007bff;
+}
+
+/* سلول‌های پر شده */
+.game-board button.btn-primary {
+    background-color: #007bff;
+    color: #ffffff;
+    border: 2px solid #007bff;
+}
+
+/* نمایش نماد در سلول‌های خالی هنگام hover */
+.game-board button:not(.btn-primary):hover {
+    background-color: #f8f9fa;
+    color: #6c757d;
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* نمایش نماد در سلول‌های پر شده */
+.game-board button.btn-primary .symbol {
+    color: #ffffff;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+}
+
+/* استایل نمادها */
+.game-board .symbol {
+    display: block;
+    line-height: 1;
+    font-weight: bold;
+}
+
+
+
+.game-board button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* باکس اطلاعات بازی */
+.game-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+}
+
+.game-status {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.player-info {
+    background: rgba(255,255,255,0.1);
+    padding: 15px;
+    border-radius: 10px;
+    margin: 10px 0;
+    backdrop-filter: blur(10px);
+}
+
+/* انیمیشن‌های کلی */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+/* استایل پیام‌ها */
+.alert {
+    border-radius: 10px;
+    border: none;
+}
+
+/* استایل navbar */
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.3rem;
+}
+
+/* استایل دکمه‌ها */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* استایل کارت‌های بازی */
+.game-card {
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.game-card:hover {
+    border-color: #007bff;
+    box-shadow: 0 8px 25px rgba(0,123,255,0.15);
+}
+
+/* استایل آمار */
+.stats-card {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
+
+/* استایل responsive */
+@media (max-width: 768px) {
+    .game-board button {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+    }
+    
+    .game-info {
+        padding: 15px;
+        margin-bottom: 15px;
+    }
+}
+
+@media (max-width: 576px) {
+    .game-board button {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+        margin: 1px;
+    }
+}
