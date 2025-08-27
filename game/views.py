@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from django.views.generic import View, TemplateView
+from django.views.generic.detail import SingleObjectMixin
 from .models import Game
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 import random
 
 
@@ -15,6 +16,7 @@ def check_status(board, game):
         or (board[2] == board[5] == board[8] == "X")
         or (board[6] == board[7] == board[8] == "X")
         or (board[3] == board[4] == board[5] == "X")
+        or (board[1] == board[4] == board[7] == "X")
     ):
         if game.player1_symbol == "X":
             game.status = "w1"
@@ -42,6 +44,7 @@ def check_status(board, game):
         or (board[2] == board[5] == board[8] == "O")
         or (board[6] == board[7] == board[8] == "O")
         or (board[3] == board[4] == board[5] == "O")
+        or (board[1] == board[4] == board[7] == "O")
     ):
         if game.player1_symbol == "O":
             game.status = "w1"
@@ -87,9 +90,11 @@ class CreateGame(LoginRequiredMixin, View):
         return redirect(new_game.get_absolute_url())
 
 
-class GameView(LoginRequiredMixin, View):
-    def post(self, request, pk, *args, **kwargs):
-        current_game = Game.objects.get(pk=pk)
+class GameView(LoginRequiredMixin, UserPassesTestMixin, SingleObjectMixin, View):
+    model = Game
+
+    def post(self, request, *args, **kwargs):
+        current_game = self.get_object()
         if current_game.status == "p":
             pos = request.POST.get("position")
             if pos:
@@ -135,13 +140,13 @@ class GameView(LoginRequiredMixin, View):
                 else:
                     return redirect("home")
 
-            return redirect("game", pk=pk)
+            return redirect("game", pk=current_game.pk)
         else:
             print("بازی به اتمام رسیده")
-            return redirect("game", pk=pk)
+            return redirect("game", pk=current_game.pk)
 
-    def get(self, request, pk, *args, **kwargs):
-        current_game = Game.objects.get(pk=pk)
+    def get(self, request, *args, **kwargs):
+        current_game = self.get_object()
 
         if not current_game.player2 and request.user != current_game.player1:
             current_game.player2 = request.user
@@ -152,6 +157,12 @@ class GameView(LoginRequiredMixin, View):
         }
 
         return render(request, "game/game.html", context)
+
+    def test_func(self):
+        current_game = self.get_object()
+        if current_game.player1 and current_game.player2:
+            return self.request.user in [current_game.player1, current_game.player2]
+        return True
 
 
 class HomeView(TemplateView):
