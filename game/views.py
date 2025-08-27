@@ -115,6 +115,7 @@ class GameView(LoginRequiredMixin, View):
                     current_game.turn = current_game.player2_symbol
                     current_game.board = "".join(current_board)
                     current_game.save()
+                    check_status(current_game.board, current_game)
 
                 elif (
                     (request.user == current_game.player2)
@@ -125,6 +126,7 @@ class GameView(LoginRequiredMixin, View):
                     current_game.turn = current_game.player1_symbol
                     current_game.board = "".join(current_board)
                     current_game.save()
+                    check_status(current_game.board, current_game)
             return redirect("game", pk=pk)
         else:
             return redirect("home")

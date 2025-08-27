@@ -1,10 +1,32 @@
-{% extends "base.html" %} {% block main %}
+{% extends "base.html" %} 
+{% block title %}XO-Play{% endblock title %}
+{% block content %}
 
-<h2>{{game.player1.username}}:{{game.player1_symbol}}</h2>
+<h2>
+  {{game.player1.username}}:{{game.player1_symbol}}
+  {% if game.player2 %}
+    {{game.player2.username}}:{{game.player2_symbol}}
+  {% else %}
+    waiting for players...
+  {% endif %}
+  <br>
+  turn: {{game.turn}}
+  <br>
+  Game Status: {{game.status}}
+</h2>
+
 <form action="{% url 'game' game.pk %}" method="post">
-  {% csrf_token %} {% for cell in game.board %}
-  <input type="hidden" name="position" value="{{forloop.counter0}}" />
-  <button type="submit">{{cell}}</button>
+  {% csrf_token %} 
+  
+  {% for cell in game.board %}
+    <button type="submit" name="position" value="{{ forloop.counter0 }}">
+      {% if cell == ' ' %}
+        &nbsp; {% else %}
+        {{ cell }}
+      {% endif %}
+    </button>
+    
+    {% if forloop.counter0 == 2 or forloop.counter0 == 5 %}<br>{% endif %}
   {% endfor %}
 </form>
-{% endblock main %}
+{% endblock content %}

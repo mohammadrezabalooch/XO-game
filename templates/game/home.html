@@ -1,7 +1,10 @@
-{% extends "base.html" %} {% block main %}
+{% extends "base.html" %}
 
+{% block title %}XO{% endblock title %}
+
+{% block content %}
 <form action="{% url 'create_game' %}" method="post">
   {% csrf_token %}
   <button type="submit">بازی جدید</button>
 </form>
-{% endblock main %}
+{% endblock content %}
